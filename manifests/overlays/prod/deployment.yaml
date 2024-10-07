@@ -1,4 +1,4 @@
-apiVersion : apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: 82263412
@@ -7,18 +7,17 @@ spec:
   template:
     spec:
       containers:
-      - name: 82263412 
-        command: ["java","-jar","/app.jar"]
-        args: ["--spring.config.location=file:/config/application.yml"]
-        volumeMounts:
-        - mountPath: /mnt/82263412
-          name: 82263412-volume
-          readOnly: false
-          subPath: 82263412
-        - mountPath: /config
-          name: application-properties
-          readOnly: true
-                          
+        - name: 82263412
+          command: ["java","-jar","/app.jar"]
+          args: ["--spring.config.location=file:/config/application.yml"]
+          volumeMounts:
+          - mountPath: /mnt/82263412
+            name: 82263412-volume
+            readOnly: false
+            subPath: 82263412
+          - mountPath: /config
+            name: application-properties
+            readOnly: true
       volumes:
       - name: 82263412-volume
         persistentVolumeClaim:
