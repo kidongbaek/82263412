@@ -22,8 +22,8 @@ spec:
     command: ["/bin/sh"]
     volumeMounts:
     - mountPath: "/mnt/data"
-      name: 82263412-pvc
+      name: "82263412-pvc"
   volumes:
-  - name: 82263412-pvc
+  - name: "82263412-pvc"
     persistentVolumeClaim:
       claimName: cepg-aa-std-rwmany 
