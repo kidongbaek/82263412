@@ -14,4 +14,4 @@ spec:
   volumes:
   - name: "82263412-pvc"
     persistentVolumeClaim:
-      claimName: cepg-aa-std-rwmany
+      claimName: cepg-aa-std-pvc
