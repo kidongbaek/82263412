@@ -5,7 +5,7 @@ metadata:
   namespace: 82263412
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 1Gi
