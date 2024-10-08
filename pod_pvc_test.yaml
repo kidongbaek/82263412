@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cepg-aa-std-pvc
+  namespace: 82263412
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: alpine-pod
+  namespace: 82263412
+spec:
+  containers:
+  - name: alpine
+    image: alpine
+    command: ["/bin/sh"]
+    volumeMounts:
+    - mountPath: "/mnt/data"
+      name: 82263412-pvc
+  volumes:
+  - name: 82263412-pvc
+    persistentVolumeClaim:
+      claimName: cepg-aa-std-pvc
