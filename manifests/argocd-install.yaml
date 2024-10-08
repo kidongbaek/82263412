@@ -23703,10 +23703,6 @@ spec:
               topologyKey: kubernetes.io/hostname
             weight: 5
       containers:
-      - name: argocd-server
-        command:
-          - argocd-server
-          - --insecure
       - args:
         - /usr/local/bin/argocd-server
         env:
