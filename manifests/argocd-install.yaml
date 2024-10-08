@@ -5352,12 +5352,12 @@ metadata:
   name: argocd-server-ingress
   namespace: argocd
   annotations:
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "false"
 spec:
   ingressClassName: nginx
   rules:
-  - host: argocd.example.com
+  - host: argocd.cepg-82263412-sa.kubepia.net
     http:
       paths:
       - path: /
@@ -23727,6 +23727,10 @@ spec:
       containers:
       - args:
         - /usr/local/bin/argocd-server
+        - name: argocd-server
+          command:
+            - argocd-server
+            - --insecure
         env:
         - name: REDIS_PASSWORD
           valueFrom:
