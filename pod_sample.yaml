@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: alpine-pod
+  namespace: "82263412"
+spec:
+  containers:
+  - name: alpine
+    image: alpine:latest
+    command: ["/bin/sh"]
+    volumeMounts:
+    - mountPath: "/mnt/data"
+      name: "82263412-pvc"
+  volumes:
+  - name: "82263412-pvc"
+    persistentVolumeClaim:
+      claimName: cepg-aa-std-rwmany
