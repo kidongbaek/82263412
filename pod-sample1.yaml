@@ -14,15 +14,15 @@ spec:
       name: "82263412-pvc"
     env:
     - name: PROGRESS_DATABASE
-      value: "progressdb" 
+      value: "progressdb"
     - name: PROGRESS_HOST
-      value: cepg-82263412-postgresdb.postgres.database.azure.com  
+      value: cepg-82263412-postgresdb.postgres.database.azure.com
     - name: PROGRESS_PORT
       value: "5432"
     - name: PROGRESS_USER
       value: "kidong"
     - name: PROGRESS_PASS
-      value: "qorrlehd12!@"  
+      value: "qorrlehd12!@"
   volumes:
   - name: "82263412-pvc"
     persistentVolumeClaim:
