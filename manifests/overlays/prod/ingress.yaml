@@ -4,7 +4,7 @@ metadata:
   name: "82263412-ingress"
   namespace: "82263412"
 spec:
-  ingressClassName: nginx
+  ingressClassName: ingress-internal
   rules:
   - host: "82263412-prod.cepg-aa.kubepia.net"
     http:
