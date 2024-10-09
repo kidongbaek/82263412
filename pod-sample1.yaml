@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx1
+  namespace: "82263412"
+spec:
+  containers:
+  - image: nginx:1.14.2
+    name: nginx
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - mountPath: "/mnt/data"
+      name: "82263412-pvc"
+  volumes:
+  - name: "82263412-pvc"
+    persistentVolumeClaim:
+      claimName: cepg-aa-std-pvc
+  dnsPolicy: ClusterFirst
