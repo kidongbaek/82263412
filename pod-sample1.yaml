@@ -12,19 +12,20 @@ spec:
     volumeMounts:
     - mountPath: "/mnt/data"
       name: "82263412-pvc"
+    env:
+    - name: PROGRESS_DATABASE
+      vlaue: "progressdb"
+    - name: PROGRESS_HOST
+      vlaue: cepg-82263412-postgresdb.postgres.database.azure.com
+    - name: PROGRESS_PORT
+      value: 5432
+    - name: PROGRESS_USER
+      value: kidong
+    - name: PROGRESS_PASS
+      vlaue: qorrlehd12!@
   volumes:
   - name: "82263412-pvc"
     persistentVolumeClaim:
       claimName: cepg-aa-std-pvc
   dnsPolicy: ClusterFirst
-    env:
-      - name: PROGRESS_DATABASE
-        vlaue: "progressdb"
-      - name: PROGRESS_HOST
-        vlaue: cepg-82263412-postgresdb.postgres.database.azure.com
-      - name: PROGRESS_PORT
-        value: 5432
-      - name: PROGRESS_USER
-        value: kidong
-      - name: PROGRESS_PASS
-        vlaue: qorrlehd12!@
+
