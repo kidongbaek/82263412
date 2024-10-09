@@ -24508,7 +24508,3 @@ spec:
             port:
               name: http
     host: argocd.cepg-82263412-sa.kubepia.net
-  tls:
-  - hosts:
-    - argocd.cepg-82263412-sa.kubepia.net
-    secretName: argocd-ingress-http
