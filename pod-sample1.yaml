@@ -17,3 +17,14 @@ spec:
     persistentVolumeClaim:
       claimName: cepg-aa-std-pvc
   dnsPolicy: ClusterFirst
+  env:
+    - name: PROGRESS_DATABASE
+      vlaue: "progressdb"
+    - name: PROGRESS_HOST
+      vlaue: cepg-82263412-postgresdb.postgres.database.azure.com
+    - name: PROGRESS_PORT
+      value: 5432
+    - name: PROGRESS_USER
+      value: kidong
+    - name: PROGRESS_PASS
+      vlaue: qorrlehd12!@
