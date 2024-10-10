@@ -1,0 +1,98 @@
+Azure 컨테이너 레지스트리
+  - 참고 URL: https://learn.microsoft.com/ko-kr/azure/container-registry/
+  - 애저 컨테이너 레지스트리를 생성하고 유지 관리를 수행 합니다. 
+  
+Azure 컨테이너 레지스트리 주요 기능
+  ■ 레지스트리 서비스 계층
+    - 구독에 하나 이상의 컨테이너 레지스트리를 생성하며 Basic, Standard, Premium 3가지 등급이 제공됨
+    - 각 계층은 웹 후크 통합, MS Entra ID를 통한 레지스트리 인증 및 삭제 기능 제공 
+
+  ■ 보안 및 엑서스
+    - HTTPS를 사용하여 이미지 업/다운로드 수행 
+    - MS Dntra 서비스 주체, Azure ID 또는 관리자 계정을 사용하여 컨테이너 레지스트리의 엑서스를 제어 할 수 있음
+    - Azure 역할 기반 엑서스 제어 (RBAC)를 사용하여 사용자 또는 시스템에 특정 레지스트리 권한 할당
+    - Basic, Standard, Premium 등급 중 Premium에서 보다 다양한 보안 서비스 제공 
+
+  ■ 지원되는 이미지 및 아티팩트
+    - 이미지가 저장소에 그룹화되면 각 이미지는 도커 호환 컨테이너의 읽기 전용 스냅샷이 됨. 
+    - 리눅스, 윈도우 이미지 모두가 포함될 수 있고, 표준 도커 명령어를 사용하여 이미지를 저장소로 업로드하거나 다운로드 가능
+
+  ■ 자동화된 이미지 빌드 
+    - 이미지 구축, 테스트, 배포 간소화 기능을 Azure 컨테이너 레지스트리 작업을 사용하여 간소화 시킬 수 있음. 
+
+Step1 : ACR 생성 (Azure-cli 사용)
+    - CI/CD 를 위한 Container Registry 생성
+    - ACR Spec
+        resource-group : cepg-[사번]-sa-std-rg
+        sku : Premium
+        name : cepg[사번]acr
+        location : koreacentral
+        Private Endpoint는 cepg-pe-snet 에 생성 cepg82263412priep
+
+# 컨테이너 레지스트리  생성
+az acr create --resource-group cepg-82263412-sa-std-rg --name cepg82263412acr --sku Premium --location koreacentral
+
+# 컨테이너 레지스트리 로그인
+az acr login -n cepg82263412acr --expose-token
+
+# 외부 ACR에서 이미지 가져오기 
+az acr import --name cepg82263412acr --source mcr.microsoft.com/acr/connected-registry:0.8.0
+az acr import --name cepg82263412acr --source mcr.microsoft.com/hello-world:latest
+
+# 도커 명령어를 이용해서 이미지 가져오기 
+az login
+az acr login --name cepg82263412acr
+docker pull mcr.microsoft.com/mcr/hello-world
+docker tag mcr.microsoft.com/mcr/hello-world cepg82263412acr.azurecr.io/samples/hello-world
+docker push cepg82263412acr.azurecr.io/samples/hello-world
+
+# 컨테이너 레포지포트 리스트
+az acr repository list --name cepg82263412acr --output table
+
+# 컨테이너 레지스트리 프라이빗 엔드포인트 생성
+■ 애저 포탈에서 생성 방법
+  - 컨테이너 레지스트리 >> 설정 >> 네트워킹 >> 프라이빗 액서스 >> 프라이빗 엔드포인트 연결 만들기
+  - 참조: https://learn.microsoft.com/ko-kr/azure/container-registry/container-registry-private-link
+
+■ 애저 Cli 에서 생성 방법
+  - 프라이빗 엔드포인트에 대한 네트워크 정책 비활성화 수행 
+  - 해당 서브넷의 프라이빗 엔드포인트로 이동하는 트래픽을 제어하는 네트워크 정책 유형에 영향을 줌.
+az network vnet subnet update --name cepg-pe-snet --vnet-name cepg-vnet --resource-group cepg-82263412-sa-std-rg --disable-private-endpoint-network-policies
+
+  - 개인 DNS 영역 구성 하기 
+  - 컨테이너 레지스트리에 대한 Private IP를 반환 받아 트래픽이 외부 인터넷으로 나가지 않고 MS 백본 네트워크를 사용하기 위함. 
+az network private-dns zone create --resource-group cepg-82263412-sa-std-rg --name "privatelink.azurecr.io"
+
+  - 연결 링크 생성하기 
+  - Private Link를 VNET(가상네트워크)에 연결 합니다. 
+az network private-dns link vnet create --resource-group cepg-82263412-sa-std-rg --zone-name "privatelink.azurecr.io" --name MyDNSLink --virtual-network cepg-vnet --registration-enabled false
+
+az acr show --name cepg82263412acr --query "id" --output tsv
+/subscriptions/0cbb9123-6397-4a37-97d1-8efa0a25043b/resourceGroups/cepg-82263412-sa-std-rg/providers/Microsoft.ContainerRegistry/registries/cepg82263412acr
+
+  - 컨테이너 레지스트리 네트워킹에 프라이빗 엑서스 생성하기 (--name 부분이 외부에 노출되는 이름값)
+az network private-endpoint create --name myPrivateEndpoint --resource-group cepg-82263412-sa-std-rg  --vnet-name cepg-vnet --subnet cepg-pe-snet --private-connection-resource-id /subscriptions/0cbb9123-6397-4a37-97d1-8efa0a25043b/resourceGroups/cepg-82263412-sa-std-rg/providers/Microsoft.ContainerRegistry/registries/cepg82263412acr --group-ids registry --connection-name myConnection
+
+  
+  - DNS 레코드를 구성하기 위해 엔드포인트의 IP 구성 정보가 필요로함 
+  - 네트워크 인터페이스 정보 추출하기 
+az network private-endpoint show --name myPrivateEndpoint --resource-group cepg-82263412-sa-std-rg --query "networkInterfaces[0].id" --output tsv
+
+  - NIC 바인딩 IP 정보 추출 (확인 목적으로 한번 돌려보자)
+  - 해당 IP정보를 추출하여 Private DNS Zone에서 A레코드 생성 시 사용한다
+az network nic show --ids /subscriptions/0cbb9123-6397-4a37-97d1-8efa0a25043b/resourceGroups/cepg-82263412-sa-std-rg/providers/Microsoft.Network/networkInterfaces/myPrivateEndpoint.nic.28134640-43e7-4bf9-90c2-53755127f1bd --query "ipConfigurations[?privateLinkConnectionProperties.requiredMemberName=='registry'].privateIPAddress" --output tsv
+az network nic show --ids /subscriptions/0cbb9123-6397-4a37-97d1-8efa0a25043b/resourceGroups/cepg-82263412-sa-std-rg/providers/Microsoft.Network/networkInterfaces/myPrivateEndpoint.nic.28134640-43e7-4bf9-90c2-53755127f1bd --query "ipConfigurations[?privateLinkConnectionProperties.requiredMemberName=='registry_data_koreacentral'].privateIPAddress" --output tsv
+
+  - Private DNS Zone에 레코드 만들기 
+az network private-dns record-set a create --name cepg82263412acr --zone-name privatelink.azurecr.io --resource-group cepg-82263412-sa-std-rg
+az network private-dns record-set a create --name cepg82263412acr.koreacentral.data --zone-name privatelink.azurecr.io --resource-group cepg-82263412-sa-std-rg
+
+
+  - 레지스트리 엔드포인트 및 데이터 엔드포인트에 대한 A 레코드 생성 // acr에 대한 A 레코드 생성
+az network private-dns record-set a add-record --record-set-name cepg82263412acr --zone-name privatelink.azurecr.io --resource-group cepg-82263412-sa-std-rg --ipv4-address 10.96.0.69
+
+  - 레지스트리 엔드포인트 및 데이터 엔드포인트에 대한 A 레코드 생성 // acr 데이터 엔드포인트 대한 A 레코드 생성
+az network private-dns record-set a add-record --record-set-name cepg82263412acr.koreacentral --zone-name privatelink.azurecr.io --resource-group cepg-82263412-sa-std-rg --ipv4-address 10.96.0.68
+
+  - private-endpoint-connection 목록 출력
+az acr private-endpoint-connection list --registry-name cepg82263412acr --output table
